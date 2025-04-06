@@ -375,6 +375,13 @@ async def musicinfos(
     ret = []
     for music_name in name:
         url = xiaomusic.get_music_url(music_name)
+        try:
+            if "song/url" in url:
+                songs = await downloadfile(url, "json")
+                url = songs["data"][0]["url"]
+        except Exception:
+            pass
+
         info = {
             "name": music_name,
             "url": url,
