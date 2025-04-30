@@ -338,6 +338,24 @@ async def musicinfo(
     name: str, musictag: bool = False, Verifcation=Depends(verification)
 ):
     url = xiaomusic.get_music_url(name)
+
+    if "url/tx" in url:
+        try:
+            song = await downloadfile(url, "json")
+            url = song['data']
+            log.info(f"musicinfo  QQ")
+        except Exception:
+            url = xiaomusic.get_music_tags(name)["apiurl"]
+
+    if "song/url" in url:
+        try:
+            song = await downloadfile(url, "json")
+            log.info(f"musicinfo  WY")
+            url = song["data"][0]["url"]
+            if "kuwo" in url:
+                url = url.replace("https", "http")
+        except Exception:
+            url = None
     info = {
         "ret": "OK",
         "name": name,
@@ -357,6 +375,13 @@ async def musicinfos(
     ret = []
     for music_name in name:
         url = xiaomusic.get_music_url(music_name)
+        try:
+            if "song/url" in url:
+                songs = await downloadfile(url, "json")
+                url = songs["data"][0]["url"]
+        except Exception:
+            pass
+
         info = {
             "name": music_name,
             "url": url,

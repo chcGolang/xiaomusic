@@ -256,7 +256,7 @@ async def thdplay(
     return False
 
 
-async def downloadfile(url):
+async def downloadfile(url, type="text"):
     # 清理和验证URL
     # 解析URL
     parsed_url = urlparse(url)
@@ -276,6 +276,10 @@ async def downloadfile(url):
             # 如果响应不是200，引发异常
             response.raise_for_status()
             # 读取响应文本
+            if type == "json":
+                json_data = await response.json()
+                return json_data
+
             text = await response.text()
             return text
 
@@ -299,7 +303,7 @@ async def _get_web_music_duration(session, url, config, start=0, end=500):
     with tempfile.NamedTemporaryFile() as tmp:
         tmp.write(array_buffer)
         try:
-            duration = get_local_music_duration(tmp, config)
+            duration = await get_local_music_duration(tmp, config)
         except Exception as e:
             log.error(f"Error _get_web_music_duration: {e}")
     return duration

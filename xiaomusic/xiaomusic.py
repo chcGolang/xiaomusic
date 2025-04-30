@@ -8,6 +8,7 @@ import os
 import random
 import re
 import time
+import requests
 import urllib.parse
 from collections import OrderedDict
 from dataclasses import asdict
@@ -521,6 +522,10 @@ class XiaoMusic:
     def get_music_url(self, name):
         if self.is_web_music(name):
             url = self.all_music[name]
+            if("song/url" in url):
+                jsons = requests.get(url, timeout=15) # 增加超时以避免长时间挂起
+                jsons.raise_for_status() # 如果响应不是200，引发HTTPError异常(url,"json")
+                url = jsons.json()['data'][0]['url']
             self.log.info(f"get_music_url web music. name:{name}, url:{url}")
             return url
 
